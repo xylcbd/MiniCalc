@@ -14,5 +14,8 @@ SET(SRC_LIST ${DIR_SRCS})
 #SET(PROJECT_BINARY_DIR ./bin)
 #SET(PROJECT_SOURCE_DIR ./src)
 
+#c++ 11 support
+SET(CMAKE_CXX_FLAGS "-std=c++11")
+
 #add executable file
 ADD_EXECUTABLE(MiniCalc ${SRC_LIST})

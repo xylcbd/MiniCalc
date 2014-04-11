@@ -1,22 +1,111 @@
-#include <string.h>
-#include <stdio.h>
+#include <cassert>
+#include <iostream>
+#include <cstring>
 
 #include "../include/Parser.h"
 #include "../include/util.h"
 
+using namespace std;
+using namespace MiniCalc;
+
+enum class PARSER_STATE
+{
+	STATE_STOP,
+	STATE_START,
+	STATE_APPED,
+	STATE_COUNT
+};
+
 //number | op_code | bracket
-PARSER_STATE g_ParserStateTbl[STATE_COUNT*3] = 
+/*PARSER_STATE g_ParserStateTbl[STATE_COUNT*3] = 
 {
 	STATE_START,STATE_START,STATE_START,
 	STATE_APPED,STATE_STOP,STATE_STOP,
 	STATE_STOP, STATE_STOP, STATE_STOP,
-};
+};*/
 
-//global varlues
-int g_nPos = 0;
-bool g_bParseError = false;
+CParser::~CParser()
+{
+	TOKEN* pToken = m_pTokenList;
+	TOKEN* pNextToken = nullptr;
+	while (pToken)
+	{
+		pNextToken = pToken->pNext;
+		delete pToken;
+		pToken = pNextToken;
+	}
+}
 
-inline bool IsVilidateChar(const char instr)
+void CParser::ShowToken(const TOKEN* pToken)
+{
+	if (!pToken)
+	{
+		return;
+	}
+	switch (pToken->Type)
+	{
+	case TOKEN_TYPE::TYPE_NUMBER:
+		cout << "\tType : number \t\tValue : " << pToken->llValue << endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_PLUS:
+		cout << "\tType : plus \t\tValue : +"<<endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_MINUS:
+		cout << "\tType : minus \t\tValue : -"<<endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_TIME:
+		cout << "\tType : time \t\tValue : *" << endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_DIVIDE:
+		cout << "\tType : divide \t\tValue : /" << endl;
+		break;
+	case TOKEN_TYPE::TYPE_LEFT_BRACKET:
+		cout << "\tType : left bracket \tValue : (" << endl;
+		break;
+	case TOKEN_TYPE::TYPE_RIGHT_BRACKET:
+		cout << "\tType : right bracket \tValue : )" << endl;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+void CParser::ShowTokenValue(const TOKEN* pToken)
+{
+	switch (pToken->Type)
+	{
+	case TOKEN_TYPE::TYPE_NUMBER:
+		cout<<(pToken->llValue)<<endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_PLUS:
+		cout<<"+"<<endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_MINUS:
+		cout << "-" << endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_TIME:
+		cout << "*" << endl;
+		break;
+	case TOKEN_TYPE::TYPE_OP_DIVIDE:
+		cout << "/" << endl;
+		break;
+	default:
+		break;
+	}
+}
+void CParser::ShowTokenList(const TOKEN_LINK_LIST* pTokenList)
+{
+	cout<<"list tokens begin : "<<endl;
+	const TOKEN* pCurrent = pTokenList->pNext;
+	while (pCurrent)
+	{
+		ShowToken(pCurrent);
+		pCurrent = pCurrent->pNext;
+	}
+	cout<<"list tokens end : "<<endl;
+}
+
+static inline bool IsVilidateChar(const char instr)
 {
 	if (
 		(instr >= '0' && instr <= '9')
@@ -32,126 +121,128 @@ inline bool IsVilidateChar(const char instr)
 	}
 	return false;
 }
-TOKEN* GetNextToken(const char* pStateMent)
+TOKEN* CParser::GetNextToken(const char* pStateMent)
 {
 	TOKEN* pToken = new TOKEN();
-	PARSER_STATE state = STATE_START;
+	PARSER_STATE state = PARSER_STATE::STATE_START;
 	int nNumStartPos = 0;
 	int nNumStopPos = 0;
 	bool done = false;
-	while (!g_bParseError && !done)
+	while (!m_bParseError && !done)
 	{
-		if (pStateMent[g_nPos] == '\0')
+		if (pStateMent[m_nParsePos] == '\0')
 		{
-			nNumStopPos = g_nPos - 1;
+			nNumStopPos = m_nParsePos - 1;
 			done = true;
 			break;
-		}else if (!IsVilidateChar(pStateMent[g_nPos]))
+		}else if (!IsVilidateChar(pStateMent[m_nParsePos]))
 		{
-			g_bParseError = true;
+			m_bParseError = true;
 			break;
 		}
 		switch (state)
 		{
-		case STATE_STOP:
-			nNumStopPos = g_nPos - 1;
+		case PARSER_STATE::STATE_STOP:
+			nNumStopPos = m_nParsePos - 1;
 			done = true;
 			break;
-		case STATE_START:
+		case PARSER_STATE::STATE_START:
 		{
-			char curchar = pStateMent[g_nPos++];
+			char curchar = pStateMent[m_nParsePos++];
 			switch (curchar)
 			{
 			case '+':
-				pToken->type = TYPE_OP_PLUS;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_OP_PLUS;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			case '-':
-				pToken->type = TYPE_OP_MINUS;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_OP_MINUS;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			case '*':
-				pToken->type = TYPE_OP_TIME;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_OP_TIME;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			case '/':
-				pToken->type = TYPE_OP_DIVIDE;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_OP_DIVIDE;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			case '(':
-				pToken->type = TYPE_LEFT_BRACKET;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_LEFT_BRACKET;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			case ')':
-				pToken->type = TYPE_RIGHT_BRACKET;
-				pToken->value = curchar;
-				state = STATE_STOP;
+				pToken->Type = TOKEN_TYPE::TYPE_RIGHT_BRACKET;
+				pToken->llValue = curchar;
+				state = PARSER_STATE::STATE_STOP;
 				break;
 			default:
 				if (curchar >= '0' && curchar <= '9')
 				{
-					pToken->type = TYPE_NUMBER;
-					nNumStartPos = g_nPos - 1;
-					state = STATE_APPED;
+					pToken->Type = TOKEN_TYPE::TYPE_NUMBER;
+					nNumStartPos = m_nParsePos - 1;
+					state = PARSER_STATE::STATE_APPED;
 				}
 				break;
 			}
 			break;
 		}
 		//lookahead
-		case STATE_APPED:
+		case PARSER_STATE::STATE_APPED:
 		{
-			char curchar = pStateMent[g_nPos++];
+			char curchar = pStateMent[m_nParsePos++];
 			if (curchar >= '0' && curchar <= '9')
 			{
 				continue;
 			}
 			else
 			{
-				nNumStopPos = g_nPos - 1;
-				g_nPos--;
+				nNumStopPos = m_nParsePos - 1;
+				m_nParsePos--;
 				done = true;
 			}
 			break;
 		}
 		default:
-			g_bParseError = true;
+			m_bParseError = true;
 			break;
 		}
 	}
-	if (pToken->type == TYPE_NUMBER)
+	if (pToken->Type == TOKEN_TYPE::TYPE_NUMBER)
 	{
-		pToken->value = Translate2Num(&(pStateMent[nNumStartPos]),nNumStopPos-nNumStartPos);
+		pToken->llValue = Translate2Num(&(pStateMent[nNumStartPos]),nNumStopPos-nNumStartPos);
 		pToken->pStrPos = pStateMent + nNumStartPos;
 	}
 	else
 	{
-		pToken->pStrPos = pStateMent + g_nPos;
+		pToken->pStrPos = pStateMent + m_nParsePos;
 	}
 	return pToken;
 }
-TOKEN_LINK_LIST* Parse(const char* pStateMent)
+bool CParser::Parse(const char* pStateMent)
 {
-	TOKEN_LINK_LIST* pResult = new TOKEN_LINK_LIST();
-	pResult->type = TYPE_UNKNOWN;
-	pResult->value = 0;
+	m_pTokenList = new TOKEN_LINK_LIST();
 	int nLength = strlen(pStateMent);
 
 	TOKEN* pNextToken = GetNextToken(pStateMent);
-	pResult->pNext = pNextToken;
-	while (!g_bParseError && g_nPos < nLength)
+	m_pTokenList->pNext = pNextToken;
+	while (!m_bParseError && m_nParsePos < nLength)
 	{
 		pNextToken->pNext = GetNextToken(pStateMent);
 		pNextToken = pNextToken->pNext;
 	}
-	if (g_bParseError)
+	if (m_bParseError)
 	{
-		printf("Parse error : %s \n", &(pStateMent[g_nPos]));
+		cout<<"Parse error : "<< &(pStateMent[m_nParsePos]) <<endl;
 	}
-	return pResult;
+	return !m_bParseError;
+}
+const TOKEN_LINK_LIST* CParser::GetResult() const
+{
+	return m_pTokenList;
 }
