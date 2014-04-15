@@ -8,13 +8,13 @@
 using namespace std;
 using namespace MiniCalc;
 
-long long CWalker::GetResult(const SYNTAXNODE* pSyntaxNode)
+double CWalker::GetResult(const SYNTAXNODE* pSyntaxNode)
 {
 	if (!pSyntaxNode)
 	{
 		return 0;
 	}
-	long long llResult = 0;
+	double llResult = 0;
 	const SYNTAXNODE* pCurrent = pSyntaxNode;
 
 	if (pCurrent->pToken->Type == TOKEN_TYPE::TYPE_NUMBER)
@@ -23,8 +23,8 @@ long long CWalker::GetResult(const SYNTAXNODE* pSyntaxNode)
 	}
 	else
 	{
-		long long llLValue = GetResult(pCurrent->lChild);
-		long long llRValue = GetResult(pCurrent->rChild);
+		double llLValue = GetResult(pCurrent->lChild);
+		double llRValue = GetResult(pCurrent->rChild);
 		switch (pCurrent->pToken->Type)
 		{
 		case TOKEN_TYPE::TYPE_OP_PLUS:

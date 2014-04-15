@@ -13,6 +13,8 @@ enum class PARSER_STATE
 	STATE_STOP,
 	STATE_START,
 	STATE_APPED,
+	STATE_DOT,
+	//STATE_NEGATIVE,
 	STATE_COUNT
 };
 
@@ -130,11 +132,12 @@ TOKEN* CParser::GetNextToken(const char* pStateMent)
 	int nNumStartPos = 0;
 	int nNumStopPos = 0;
 	bool done = false;
+	int dots = 0;
 	while (!m_bParseError && !done)
 	{
 		if (pStateMent[m_nParsePos] == '\0')
 		{
-			nNumStopPos = m_nParsePos - 1;
+			nNumStopPos = m_nParsePos;
 			done = true;
 			break;
 		}else if (!IsVilidateChar(pStateMent[m_nParsePos]))
@@ -150,6 +153,7 @@ TOKEN* CParser::GetNextToken(const char* pStateMent)
 			break;
 		case PARSER_STATE::STATE_START:
 		{
+			dots = 0;
 			char curchar = pStateMent[m_nParsePos++];
 			switch (curchar)
 			{
@@ -183,8 +187,17 @@ TOKEN* CParser::GetNextToken(const char* pStateMent)
 				pToken->llValue = curchar;
 				state = PARSER_STATE::STATE_STOP;
 				break;
+			case '.':
+				pToken->Type = TOKEN_TYPE::TYPE_NUMBER;
+				nNumStartPos = m_nParsePos - 1;
+				dots++;
+				state = PARSER_STATE::STATE_DOT;
+				break;
+			case ' ':
+				;
+				break;
 			default:
-				if (curchar >= '0' && curchar <= '9')
+				if ((curchar >= '0' && curchar <= '9') || (curchar == '.'))
 				{
 					pToken->Type = TOKEN_TYPE::TYPE_NUMBER;
 					nNumStartPos = m_nParsePos - 1;
@@ -192,8 +205,28 @@ TOKEN* CParser::GetNextToken(const char* pStateMent)
 				}
 				break;
 			}
-			break;
 		}
+			break;
+		case PARSER_STATE::STATE_DOT:
+		{
+			if (dots > 1)
+			{
+				m_bParseError = true;
+			}else
+			{
+				char curchar = pStateMent[m_nParsePos++];
+				if (curchar >= '0' && curchar <= '9')
+				{
+					m_nParsePos--;
+					state = PARSER_STATE::STATE_APPED;
+				}
+				else
+				{
+					m_bParseError = true;
+				}
+			}
+		}
+			break;
 		//lookahead
 		case PARSER_STATE::STATE_APPED:
 		{
@@ -201,12 +234,23 @@ TOKEN* CParser::GetNextToken(const char* pStateMent)
 			if (curchar >= '0' && curchar <= '9')
 			{
 				continue;
+			}else if (curchar == '.')
+			{
+				dots++;
+				state = PARSER_STATE::STATE_DOT;
 			}
-			else
+			else if (curchar == '+' || curchar == '-' || 
+				curchar == '*' || curchar == '/' ||
+				curchar == ' ' || curchar == ')')
 			{
 				nNumStopPos = m_nParsePos - 1;
 				m_nParsePos--;
 				done = true;
+				//state = PARSER_STATE::STATE_STOP;
+			}
+			else
+			{
+				m_bParseError = true;
 			}
 			break;
 		}

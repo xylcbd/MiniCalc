@@ -19,7 +19,7 @@ namespace MiniCalc
 	{
 		//data
 		TOKEN_TYPE	Type = TOKEN_TYPE::TYPE_UNKNOWN;
-		long long	llValue = 0;
+		double	llValue = 0;
 		const char* pStrPos = nullptr;
 		//link
 		TOKEN*		pNext = nullptr;

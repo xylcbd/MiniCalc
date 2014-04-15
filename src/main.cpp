@@ -13,10 +13,18 @@ using namespace MiniCalc;
 //输入   ： 数字全部为整数
 //运算符 ： ()+-*/
 //输出   ： 小数
-//注意   ： 输入式子中不含空格 ，不支持负号， 每个数字不超过sizeof(long long)
+//注意   ： 输入式子中不含空格 ，不支持负号， 每个数字不超过sizeof(double)
 //sample (1+2)*5+2/3
 
-#define SHOW_TOKENS 0
+//version 2014/04/15
+//only support : 
+//输入   ： 实数数字，不包括科学计数法数字
+//运算符 ： ()+-*/
+//输出   ： 实数
+//注意   ： 不支持负号， 每个数字不超过sizeof(double)
+//sample (1+2)*5+2/3
+
+#define SHOW_TOKENS 1
 #define SHOW_SYNTAX 0
 
 int CalcMain(const char* pStateMent)
@@ -58,8 +66,8 @@ int CalcMain(const char* pStateMent)
 #endif
 	printf("analyze syntax end ...\n\n");
 
-	long long llResult = CWalker::GetResult(pSynTaxTree);
-	printf("%s=%I64d\n\n", pStateMent, llResult);
+	double llResult = CWalker::GetResult(pSynTaxTree);
+	printf("%s=%f\n\n", pStateMent, llResult);
 	return 0;
 }
 

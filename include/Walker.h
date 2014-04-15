@@ -6,7 +6,7 @@ namespace MiniCalc
 	class CWalker
 	{
 	public:
-		static long long GetResult(const SYNTAXNODE* pSyntaxNode);
+		static double GetResult(const SYNTAXNODE* pSyntaxNode);
 	};
 };
 
