@@ -115,6 +115,8 @@ static inline bool IsVilidateChar(const char instr)
 		|| instr == '/'
 		|| instr == '('
 		|| instr == ')'
+		|| instr == '.'
+		|| instr == ' '
 	)
 	{
 		return true;

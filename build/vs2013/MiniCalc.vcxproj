@@ -76,18 +76,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\Parser.cpp" />
-    <ClCompile Include="..\src\Syntax.cpp" />
-    <ClCompile Include="..\src\util.cpp" />
-    <ClCompile Include="..\src\Walker.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\Parser.cpp" />
+    <ClCompile Include="..\..\src\Syntax.cpp" />
+    <ClCompile Include="..\..\src\util.cpp" />
+    <ClCompile Include="..\..\src\Walker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Parser.h" />
-    <ClInclude Include="..\include\Syntax.h" />
-    <ClInclude Include="..\include\util.h" />
-    <ClInclude Include="..\include\version.h" />
-    <ClInclude Include="..\include\Walker.h" />
+    <ClInclude Include="..\..\include\Parser.h" />
+    <ClInclude Include="..\..\include\Syntax.h" />
+    <ClInclude Include="..\..\include\util.h" />
+    <ClInclude Include="..\..\include\version.h" />
+    <ClInclude Include="..\..\include\Walker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

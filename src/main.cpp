@@ -16,8 +16,8 @@ using namespace MiniCalc;
 //注意   ： 输入式子中不含空格 ，不支持负号， 每个数字不超过sizeof(long long)
 //sample (1+2)*5+2/3
 
-#define SHOW_TOKENS 1
-#define SHOW_SYNTAX 1
+#define SHOW_TOKENS 0
+#define SHOW_SYNTAX 0
 
 int CalcMain(const char* pStateMent)
 {
@@ -78,5 +78,13 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	return CalcMain(argv[1]);
+	char strStatement[1024];
+	printf(">:");
+	while (gets(strStatement))
+	{
+		CalcMain(strStatement);
+		printf(">:");
+	}
+
+	return 0;
 }
